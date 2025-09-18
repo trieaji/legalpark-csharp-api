@@ -1,0 +1,38 @@
+{
+    "accountName": "Laksa",
+    "email": "laksabayu18@gmail.com",
+    "phoneNumber": "085738659381",
+    "password": "Laksa!2345"
+}
+
+
+
+{
+    "spotNumber" : "098",
+    "floor" : 3,
+    "spotType" : "motorcycle",
+    "merchantCode" : "ZQFKS69X"
+}
+
+
+
+{
+    "licensePlate" : "L 1990 OK",
+    "merchantCode" : "ZQFKS69X",
+    "spotNumber" : "098"
+}
+
+Active parking session for this vehicle is not at the specified merchant.
+
+
+{
+  "userId": "41DC57EC-AF65-4273-1A5E-08DDEC23FB85",
+  "parkingTransactionId": "877D1741-8143-4314-AEF2-9D934CACB495"
+}
+
+
+
+{
+    "email": "admin@legalpark.com",
+    "password": "P@ssword123"
+}
