@@ -1,43 +1,42 @@
 # 🚗 LegalPark C# API  
 
-Backend API untuk manajemen parkir, pembayaran, dan kendaraan.  
+Backend API for parking management, payment, and vehicle handling.  
 
 ---
 
-## 📑 Daftar Isi
-- [Tentang Proyek](#-tentang-proyek)
-- [Fitur Utama](#-fitur-utama)
-- [Persyaratan Sistem](#-persyaratan-sistem)
-- [Langkah-langkah Instalasi](#-langkah-langkah-instalasi)
-- [Penggunaan API](#-penggunaan-api)
-- [Langkah-langkah Penggunaan API](#-langkah--langkah-penggunaan-api)
-- [Penjelasan Singkat](#-penjelasan-singkat)
-- [Pesan dari Pemilik](#-pesan-dari-pemilik)
+## 📑 Table of Contents
+- [About the Project](#-tentang-proyek)
+- [Key Features](#-fitur-utama)
+- [System Requirements](#-persyaratan-sistem)
+- [Installation Steps](#-langkah-langkah-instalasi)
+- [API Usage](#-penggunaan-api)
+- [API Usage Workflow](#-langkah--langkah-penggunaan-api)
+- [Brief Explanation](#-penjelasan-singkat)
+- [A Message from the Owner](#-pesan-dari-pemilik)
 
 ---
 
-## 📖 Tentang Proyek  
-Proyek ini adalah backend API yang dibangun dengan **ASP.NET Core**, dirancang untuk mendukung sistem manajemen parkir digital.  
-API ini mengelola data parkir, kendaraan, transaksi, dan verifikasi pembayaran.  
+## 📖 About the Project  
+This project is a backend API built with ASP.NET Core, designed to support a digital parking management system. This API handles parking data, vehicles, transactions, and payment verification.  
 
 ---
 
-## 🌟 Fitur Utama  
-- 🅿️ **Manajemen Parkir**: Mengelola lokasi dan status tempat parkir.  
-- 🚘 **Manajemen Kendaraan**: Pendaftaran dan pembaruan data kendaraan.  
-- 💳 **Manajemen Transaksi Parkir**: Pencatatan masuk/keluar kendaraan dan riwayat transaksi.  
-- ✅ **Verifikasi Pembayaran**: Fitur untuk memvalidasi pembayaran parkir.  
+## 🌟 Key Features 
+- 🅿️ **Parking Management**: Manages parking locations and spot statuses.  
+- 🚘 **Vehicle Management**: Registration and update of vehicle data.  
+- 💳 **Parking Transaction Management**: Records vehicle entry/exit and transaction history.  
+- ✅ **Payment Verification**: Feature for validating parking payments.  
 
 ---
 
-## 💻 Persyaratan Sistem  
-Untuk menjalankan proyek ini, pastikan Anda telah menginstal:
-- .NET SDK (versi 8 atau yang lebih baru)
+## 💻 System Requirements  
+To run this project, ensure you have the following installed:
+- .NET SDK (version 8 or later)
 - Database: Microsoft SQL Server  
 
 ---
 
-## ⚙️ Langkah-langkah Instalasi  
+## ⚙️ Installation Steps  
 
 ### 1️⃣ Clone Repositori  
 ```bash
@@ -45,103 +44,94 @@ git clone https://github.com/trieaji/legalpark-csharp-api.git
 cd legalpark-csharp-api
 ```
 
-2️⃣ Konfigurasi Database
+2️⃣ Database Configuration
 
-- Buat database Microsoft SQL Server baru.
+- Create a new Microsoft SQL Server database.
 
-- Buka file appsettings.json atau appsettings.Development.json.
+- Open the file appsettings.json or appsettings.Development.json.
 
-- Sesuaikan string koneksi database Anda:
+- Adjust your database connection string:
 ```bash
 "ConnectionStrings": {
   "DefaultConnection": "Server=DESKTOP-UUMPA8T\\SQLEXPRESS;Database=yourdb;User ID=yourid;Password=yourpassword;TrustServerCertificate=True;"
 }
 ```
 
-3️⃣ Jalankan Proyek
+3️⃣ Run the Project
 ```bash
-# Untuk memulihkan dependensi
+# To restore dependencies
 dotnet restore
 
-# Untuk menjalankan aplikasi
+# To run the application
 dotnet run
 ```
 
 ---
 
-🔌 Penggunaan API
+🔌 API Usage
 
-Gunakan Postman atau Swagger UI untuk mencoba endpoint berikut:
+Use Postman or Swagger UI to test the following endpoints:
 
 🔑 Auth
 
 - Register: POST /api/v1/auth/register
 
-- Verifikasi Akun: POST /api/v1/auth/verification-account
+- Verify user account: POST /api/v1/auth/verification-account
 
 - Login: POST /api/v1/auth/login
 
-- Verifikasi Pembayaran: POST /api/v1/payment/verification/generate
+- Generate Payment Verification Code: POST /api/v1/payment/verification/generate
 
-🚗 [User] Kendaraan
+🚗 [User] Vehicle Management
 
-- Daftar Kendaraan: POST /user/vehicle/register
+- Register a new vehicle: POST /user/vehicle/register
 
-- Lihat Detail Kendaraan: GET /user/vehicle/{id}
+- View vehicle details by ID: GET /user/vehicle/{id}
 
-- Lihat Semua Kendaraan: GET /user/vehicles
+- View all registered vehicles: GET /user/vehicles
 
-🛠️ [Admin] Kendaraan
+🛠️ [Admin] Vehicle Management
 
-- Lihat Semua Kendaraan: GET /admin/vehicles
+- View all vehicles: GET /admin/vehicles
 
-- Lihat Berdasarkan ID: GET /admin/vehicle/{id}
+- View vehicle by ID: GET /admin/vehicle/{id}
 
 🅿️ [User] Parking Transaction
 
-- Parkir Masuk: POST /api/v1/user/parking-transactions/entry
+- Vehicle parking entry: POST /api/v1/user/parking-transactions/entry
 
-- Parkir Keluar: POST /api/v1/user/parking-transactions/exit
+- Vehicle parking exit: POST /api/v1/user/parking-transactions/exit
 
 ---
 
-📝 Langkah - langkah Penggunaan API
+📝 API Usage Workflow
 
 🔑 Register: POST /api/v1/auth/register
 
-✉️ Verifikasi Akun: POST /api/v1/auth/verification-account
+✉️ Account Verification: POST /api/v1/auth/verification-account
 
 🔑 Login: POST /api/v1/auth/login
 
-🚘 Daftarkan Kendaraan: POST /user/vehicle/register
+🚘 Register Vehicle: POST /user/vehicle/register
 
-🅿️ Parkir Masuk: POST /api/v1/user/parking-transactions/entry
+🅿️ Parking Entry: POST /api/v1/user/parking-transactions/entry
 
-💳 Generate Kode Verifikasi: POST /api/v1/payment/verification/generate
+💳 Generate Verification Code: POST /api/v1/payment/verification/generate
 
-🅿️ Parkir Keluar: POST /api/v1/user/parking-transactions/exit
-
----
-
-📜 Penjelasan Singkat
-
-Setelah melakukan register, user akan mendapatkan token untuk verifikasi akun yang dikirim melalui email.
-
-Saat akun sudah diverifikasi, user akan mendapatkan saldo default senilai 100K.
-
-User dapat mendaftarkan kendaraan dan melakukan parkir masuk.
-
-Saat hendak parkir keluar, user perlu melakukan verifikasi pembayaran terlebih dahulu.
-
-Kode verifikasi akan dikirimkan via email, dan setelah memasukkannya, user akan menerima notifikasi pembayaran berhasil.
+🅿️ Parking Exit: POST /api/v1/user/parking-transactions/exit
 
 ---
 
-🙋 Pesan dari Pemilik
+📜 Brief Explanation
 
-LegalPark adalah sebuah mini project yang berguna sebagai backend API untuk manajemen parkir, pembayaran, kendaraan, dan permasalahan parkir liar.
+After registering, the user will receive a token for account verification sent via email. Once the account is verified, the user will receive a default balance of 100K. Users can then register their vehicle and perform a parking entry. When preparing for parking exit, the user needs to generate a payment verification code first. This verification code will be sent via email, and after entering it, the user will receive a payment success notification.
 
-Mungkin jika kamu membaca codingan yang ada di repo saya mohon maaf sekali jika banyak kurangnya, ada comment yang sengaja tidak aku hapus karena aku perlu untuk belajar.
+---
 
-Kode ini berjalan di website (bukan aplikasi) dan hanya sisi backend saja.
-Project kecil ini belum bisa dibilang sebagai project deep. Tapi saya sangat terbuka jika ada yang ingin mengembangkan bersama.
+🙋 A Message from the Owner
+
+LegalPark is a mini-project that serves as a backend API for parking management, payment processing, vehicle data, and handling illegal parking issues.
+
+If you are reading the code in my repository, I sincerely apologize if there are many shortcomings. Some comments are intentionally left undeleted because I need them for learning purposes.
+
+This code runs on a website (not a native application) and is backend-only. This small project cannot yet be considered a deep project, but I am very open to anyone who wishes to develop it further together.
