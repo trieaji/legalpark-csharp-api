@@ -15,7 +15,7 @@ namespace LegalPark.Services.VerificationCode
 {
     public class VerificationCodeService : IVerificationCodeService
     {
-        // Deklarasi field untuk Dependency Injection
+        
         private readonly ILogger<VerificationCodeService> _logger;
         private readonly IUserRepository _userRepository;
         private readonly IParkingTransactionRepository _parkingTransactionRepository;
@@ -23,7 +23,7 @@ namespace LegalPark.Services.VerificationCode
         private readonly INotificationService _notificationService;
         private readonly ITemplateService _templateService;
 
-        // Konstruktor untuk inisialisasi melalui Dependency Injection
+        
         public VerificationCodeService(
             ILogger<VerificationCodeService> logger,
             IUserRepository userRepository,
@@ -40,31 +40,27 @@ namespace LegalPark.Services.VerificationCode
             _templateService = templateService;
         }
 
-        // Metode helper untuk memeriksa apakah kode verifikasi sudah kedaluwarsa
+        // Helper method to check if the verification code has expired
         private bool IsCodeExpired(DateTime expiryDate, DateTime currentTime)
         {
-            // C# DateTime.Compare mengembalikan nilai > 0 jika tanggal pertama lebih besar,
-            // jadi isAfter() di Java setara dengan currentTime.CompareTo(expiryDate) > 0.
+            
             return currentTime.CompareTo(expiryDate) > 0;
         }
 
-        /// <summary>
-        /// Menghasilkan dan mengirim kode verifikasi pembayaran ke pengguna.
-        /// </summary>
-        /// <param name="request">Objek permintaan yang berisi ID pengguna dan ID transaksi parkir.</param>
-        /// <returns>IActionResult yang menunjukkan status operasi.</returns>
+        
+        /// Generate and send payment verification codes to users.
         public async Task<IActionResult> GenerateAndSendPaymentVerificationCode(PaymentVerificationCodeRequest request)
         {
             try
             {
-                // 1. Cari pengguna berdasarkan ID
+                // 1. Search for users by ID
                 var user = await _userRepository.GetByIdAsync(new Guid(request.UserId));
                 if (user == null)
                 {
                     return ResponseHandler.GenerateResponseError(HttpStatusCode.NotFound, "FAILED", "User not found.");
                 }
 
-                // 2. Cari transaksi parkir yang aktif berdasarkan ID transaksi
+                // 2. Search for active parking transactions based on transaction ID
                 var parkingTransaction = await _parkingTransactionRepository.GetByIdAsync(new Guid(request.ParkingTransactionId));
                 if (parkingTransaction == null || parkingTransaction.Status != ParkingStatus.ACTIVE)
                 {
@@ -72,11 +68,11 @@ namespace LegalPark.Services.VerificationCode
                         $"Active parking transaction not found or invalid for ID: {request.ParkingTransactionId}");
                 }
 
-                // 3. Hasilkan kode OTP dan tanggal kedaluwarsa
+                // 3. Generate OTP code and expiration date
                 string otpCode = GenerateOtp.GenerateRandomNumber();
                 DateTime expiryDate = GenerateOtp.GetExpiryDate();
 
-                // 4. Buat objek PaymentVerificationCode baru
+                // 4. Create a new PaymentVerificationCode object
                 var paymentCode = new PaymentVerificationCode
                 {
                     UserId = user.Id,
@@ -87,26 +83,23 @@ namespace LegalPark.Services.VerificationCode
                     ParkingTransactionId = parkingTransaction.Id,
                 };
 
-                // Catatan: Karena properti navigasi `User` dan `ParkingTransaction` tidak dapat
-                // diset langsung karena konflik relasi, kita cukup set foreign key-nya (UserId dan ParkingTransactionId).
-                // EF Core akan mengurus sisanya.
 
-                // 5. Simpan kode verifikasi ke database
+
+                // 5. Save the verification code to the database
                 await _paymentVerificationCodeRepository.AddAsync(paymentCode);
                 await _paymentVerificationCodeRepository.SaveChangesAsync();
 
-                // 6. Siapkan variabel untuk template email
+                // 6. Prepare variables for the email template
                 var templateVariables = new Dictionary<string, object>
                 {
                     ["name"] = user.AccountName,
                     ["otp"] = otpCode
                 };
 
-                // Perlu sedikit penyesuaian karena RazorLight menggunakan objek anonim atau class
-                // bukan Dictionary seperti di Java.
+                
                 string emailBody = await _templateService.ProcessEmailTemplateAsync("payment_otp_verification", templateVariables);
 
-                // 7. Buat permintaan notifikasi email
+                // 7. Create an email notification request
                 var emailRequest = new EmailNotificationRequest
                 {
                     To = user.Email,
@@ -114,7 +107,7 @@ namespace LegalPark.Services.VerificationCode
                     Body = emailBody
                 };
 
-                // 8. Kirim email
+                // 8. Send email
                 await _notificationService.SendEmailNotification(emailRequest);
 
                 _logger.LogInformation("Payment verification code generated and sent to user {UserId}: {UserEmail}", user.Id, user.Email);
@@ -124,22 +117,18 @@ namespace LegalPark.Services.VerificationCode
             catch (System.Exception e)
             {
                 _logger.LogError(e, "Error generating and sending payment verification code for user {UserId}: {ErrorMessage}", request.UserId, e.Message);
-                // Melempar exception untuk memastikan transaksi tidak tersimpan,
-                // mirip dengan perilaku @Transactional di Java saat terjadi RuntimeException
+                // Throw an exception to ensure the transaction is not saved
                 throw new System.Exception($"Failed to generate and send payment verification code: {e.Message}", e);
             }
         }
 
-        /// <summary>
-        /// Memvalidasi kode verifikasi pembayaran yang diberikan pengguna.
-        /// </summary>
-        /// <param name="request">Objek permintaan yang berisi ID pengguna, kode, dan ID transaksi.</param>
-        /// <returns>IActionResult yang menunjukkan status validasi.</returns>
+        
+        /// Validate the payment verification code provided by the user.
         public async Task<IActionResult> ValidatePaymentVerificationCode(VerifyPaymentCodeRequest request)
         {
             try
             {
-                // 1. Validasi format GUID untuk UserId
+                
                 if (!Guid.TryParse(request.UserId, out var userGuid))
                 {
                     return ResponseHandler.GenerateResponseError(
@@ -149,7 +138,7 @@ namespace LegalPark.Services.VerificationCode
                     );
                 }
 
-                // 2. Validasi format GUID untuk ParkingTransactionId
+                
                 if (!Guid.TryParse(request.ParkingTransactionId, out var transactionGuid))
                 {
                     return ResponseHandler.GenerateResponseError(
@@ -159,14 +148,14 @@ namespace LegalPark.Services.VerificationCode
                     );
                 }
 
-                // 1. Cari pengguna berdasarkan ID
+                // 1. Search for users by ID
                 var user = await _userRepository.GetByIdAsync(new Guid(request.UserId));
                 if (user == null)
                 {
                     return ResponseHandler.GenerateResponseError(HttpStatusCode.NotFound, "FAILED", "User not found.");
                 }
 
-                // 2. Cari kode verifikasi terbaru yang belum diverifikasi
+                // 2. Find the latest unverified verification code
                 var verification = await _paymentVerificationCodeRepository
                     .findTopByUserAndCodeAndIsVerifiedFalseOrderByExpiresAtDesc(user, request.Code);
 
@@ -175,13 +164,13 @@ namespace LegalPark.Services.VerificationCode
                     return ResponseHandler.GenerateResponseError(HttpStatusCode.BadRequest, "FAILED", "Invalid or expired verification code.");
                 }
 
-                // 3. Periksa apakah kode sudah kedaluwarsa
+                // 3. Check if the code has expired
                 if (IsCodeExpired(verification.ExpiresAt, DateTime.Now))
                 {
                     return ResponseHandler.GenerateResponseError(HttpStatusCode.BadRequest, "FAILED", "Verification code has expired.");
                 }
 
-                // 4. Periksa apakah kode verifikasi terhubung ke transaksi yang benar
+                // 4. Check whether the verification code is linked to the correct transaction.
                 //if (verification.ParkingTransactionId == null || !verification.ParkingTransactionId.Equals(new Guid(request.ParkingTransactionId)))
                 //{
                 //    return ResponseHandler.GenerateResponseError(HttpStatusCode.BadRequest, "FAILED", "Verification code is not valid for this transaction.");
@@ -196,7 +185,7 @@ namespace LegalPark.Services.VerificationCode
                     );
                 }
 
-                // 5. Tandai kode verifikasi sebagai diverifikasi
+                // 5. Mark the verification code as verified
                 verification.IsVerified = true;
                 _paymentVerificationCodeRepository.Update(verification);
                 await _paymentVerificationCodeRepository.SaveChangesAsync();
@@ -207,7 +196,7 @@ namespace LegalPark.Services.VerificationCode
             catch (System.Exception e)
             {
                 _logger.LogError(e, "Error validating payment verification code for user {UserId}: {ErrorMessage}", request.UserId, e.Message);
-                // Melempar exception untuk memastikan transaksi tidak tersimpan
+                // Throw an exception to ensure the transaction is not saved
                 throw new System.Exception($"Failed to validate payment verification code: {e.Message}", e);
             }
         }

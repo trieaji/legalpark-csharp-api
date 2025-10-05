@@ -15,13 +15,7 @@ namespace LegalPark.Services.Vehicle.Admin
         private readonly IUserRepository _userRepository;
         private readonly VehicleResponseMapper _vehicleResponseMapper;
 
-        /// <summary>
-        /// Konstruktor untuk dependency injection.
-        /// Menginjeksi repository yang diperlukan dan mapper untuk DTO.
-        /// </summary>
-        /// <param name="vehicleRepository">Repository untuk entitas Vehicle.</param>
-        /// <param name="userRepository">Repository untuk entitas User.</param>
-        /// <param name="vehicleResponseMapper">Helper untuk memetakan Vehicle ke VehicleResponse.</param>
+        
         public AdminVehicleService(
             IVehicleRepository vehicleRepository,
             IUserRepository userRepository,
@@ -32,20 +26,16 @@ namespace LegalPark.Services.Vehicle.Admin
             _vehicleResponseMapper = vehicleResponseMapper;
         }
 
-        /// <summary>
-        /// Mendaftarkan kendaraan baru atas nama pengguna tertentu.
-        /// </summary>
-        /// <param name="request">Objek VehicleRequest yang berisi data kendaraan.</param>
-        /// <returns>Respons HTTP sukses dengan data kendaraan terdaftar atau respons kesalahan.</returns>
+        
         public async Task<IActionResult> AdminRegisterVehicle(VehicleRequest request)
         {
-            // Validasi ownerId
+            
             if (string.IsNullOrEmpty(request.OwnerId))
             {
                 return ResponseHandler.GenerateResponseError(HttpStatusCode.BadRequest, "FAILED", "Owner ID is required for admin to create vehicle.");
             }
 
-            // Mencari pemilik kendaraan berdasarkan ID
+            
             if (!Guid.TryParse(request.OwnerId, out Guid ownerId))
             {
                 return ResponseHandler.GenerateResponseError(HttpStatusCode.BadRequest, "FAILED", "Invalid Owner ID format.");
@@ -57,14 +47,14 @@ namespace LegalPark.Services.Vehicle.Admin
                 return ResponseHandler.GenerateResponseError(HttpStatusCode.NotFound, "FAILED", "Owner not found with ID: " + request.OwnerId);
             }
 
-            // Cek duplikasi plat nomor
+            
             var existingVehicle = await _vehicleRepository.findByLicensePlate(request.LicensePlate);
             if (existingVehicle != null)
             {
                 return ResponseHandler.GenerateResponseError(HttpStatusCode.Conflict, "FAILED", "Vehicle with this license plate is already registered.");
             }
 
-            // Konversi string Tipe kendaraan menjadi enum VehicleType
+            // Convert the VehicleType string to an enum VehicleType
             if (!Enum.TryParse(request.Type, true, out VehicleType vehicleType))
             {
                 return ResponseHandler.GenerateResponseError(HttpStatusCode.BadRequest, "FAILED",
@@ -74,10 +64,10 @@ namespace LegalPark.Services.Vehicle.Admin
 
             var vehicle = new LegalPark.Models.Entities.Vehicle
             {
-                Id = Guid.NewGuid(), // Gunakan GUID baru
+                Id = Guid.NewGuid(), 
                 LicensePlate = request.LicensePlate,
                 Type = vehicleType,
-                OwnerId = owner.Id, // Menggunakan ID pemilik yang ditemukan
+                OwnerId = owner.Id, 
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -85,18 +75,15 @@ namespace LegalPark.Services.Vehicle.Admin
             await _vehicleRepository.AddAsync(vehicle);
             await _vehicleRepository.SaveChangesAsync();
 
-            // Memuat ulang objek kendaraan dengan properti navigasi (Owner) yang sudah diisi
-            // Ini diperlukan karena AddAsync tidak secara otomatis memuat properti navigasi.
+            // Reload the vehicle object with the navigation property (Owner) already filled in.
+            // This is necessary because AddAsync does not automatically load the navigation property.
             vehicle.Owner = owner;
 
             var response = _vehicleResponseMapper.MapToVehicleResponse(vehicle);
             return ResponseHandler.GenerateResponseSuccess(response);
         }
 
-        /// <summary>
-        /// Mengambil semua kendaraan yang terdaftar.
-        /// </summary>
-        /// <returns>Respons HTTP sukses dengan daftar semua kendaraan.</returns>
+       
         public async Task<IActionResult> AdminGetAllVehicles()
         {
             var vehicles = await _vehicleRepository.GetAllWithDetailsAsync();
@@ -104,11 +91,7 @@ namespace LegalPark.Services.Vehicle.Admin
             return ResponseHandler.GenerateResponseSuccess(responses);
         }
 
-        /// <summary>
-        /// Mengambil data kendaraan berdasarkan ID.
-        /// </summary>
-        /// <param name="id">ID kendaraan.</param>
-        /// <returns>Respons HTTP sukses dengan data kendaraan atau respons kesalahan jika tidak ditemukan.</returns>
+        
         public async Task<IActionResult> AdminGetVehicleById(string id)
         {
             if (!Guid.TryParse(id, out Guid vehicleId))
@@ -126,11 +109,7 @@ namespace LegalPark.Services.Vehicle.Admin
             return ResponseHandler.GenerateResponseSuccess(response);
         }
 
-        /// <summary>
-        /// Mengambil daftar kendaraan milik pengguna tertentu.
-        /// </summary>
-        /// <param name="userId">ID pengguna.</param>
-        /// <returns>Respons HTTP sukses dengan daftar kendaraan pengguna atau respons kesalahan.</returns>
+        
         public async Task<IActionResult> AdminGetVehiclesByUserId(string userId)
         {
             if (!Guid.TryParse(userId, out Guid ownerId))
@@ -149,11 +128,7 @@ namespace LegalPark.Services.Vehicle.Admin
             return ResponseHandler.GenerateResponseSuccess(responses);
         }
 
-        /// <summary>
-        /// Menghapus kendaraan berdasarkan ID.
-        /// </summary>
-        /// <param name="id">ID kendaraan yang akan dihapus.</param>
-        /// <returns>Respons HTTP sukses jika berhasil dihapus atau respons kesalahan jika tidak ditemukan.</returns>
+        
         public async Task<IActionResult> AdminDeleteVehicle(string id)
         {
             if (!Guid.TryParse(id, out Guid vehicleId))

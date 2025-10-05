@@ -9,43 +9,33 @@ namespace LegalPark.Helpers
         private readonly SmtpSettings _smtpSettings;
         private readonly ILogger<MailService> _logger;
 
-        /// <summary>
-        /// Konstruktor untuk inisialisasi MailService dengan dependency injection.
-        /// </summary>
-        /// <param name="smtpSettings">Pengaturan SMTP dari konfigurasi.</param>
-        /// <param name="logger">Logger untuk mencatat informasi.</param>
+        
         public MailService(IOptions<SmtpSettings> smtpSettings, ILogger<MailService> logger)
         {
             _smtpSettings = smtpSettings.Value;
             _logger = logger;
         }
 
-        /// <summary>
-        /// Mengirim email secara asinkron dengan 3 kali percobaan jika gagal.
-        /// </summary>
-        /// <param name="toEmail">Alamat email penerima.</param>
-        /// <param name="subject">Subjek email.</param>
-        /// <param name="body">Isi email dalam format HTML.</param>
-        /// <returns>Task yang merepresentasikan operasi pengiriman email.</returns>
+        
         public async Task SendEmailAsync(string toEmail, string subject, string body)
         {
             int attempts = 0;
             bool sent = false;
 
-            // Logika retry, maksimal 3 kali percobaan
+            
             while (attempts < 3 && !sent)
             {
                 try
                 {
-                    // Membuat objek MailMessage
+                    
                     var message = new MailMessage();
                     message.From = new MailAddress(_smtpSettings.SenderEmail, _smtpSettings.SenderName);
                     message.To.Add(toEmail);
                     message.Subject = subject;
                     message.Body = body;
-                    message.IsBodyHtml = true; // Menandakan body email adalah HTML
+                    message.IsBodyHtml = true; 
 
-                    // Membuat objek SmtpClient
+                    
                     using (var client = new SmtpClient(_smtpSettings.SmtpHost, _smtpSettings.SmtpPort))
                     {
                         client.EnableSsl = true;

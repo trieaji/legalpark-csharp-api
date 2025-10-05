@@ -27,7 +27,7 @@ namespace LegalPark.Services.Merchant
 
             try
             {
-                // Menggunakan properti dari request langsung. Tidak perlu ModelMapper yang berat untuk pemetaan sederhana ini.
+                
                 var newMerchant = new Models.Entities.Merchant
                 {
                     MerchantName = request.MerchantName,
@@ -38,7 +38,7 @@ namespace LegalPark.Services.Merchant
                     UpdatedAt = DateTime.UtcNow
                 };
 
-                // Menghasilkan dan menetapkan kode unik
+                
                 string uniqueShortCode = await _codeGeneratorUtil.GenerateUniqueMerchantShortCodeAsync();
                 newMerchant.MerchantCode = uniqueShortCode;
 
@@ -73,8 +73,7 @@ namespace LegalPark.Services.Merchant
             {
                 var merchants = await _merchantRepository.GetAllAsync();
 
-                // Konversi entitas ke DTO jika diperlukan, atau kembalikan daftar entitas langsung
-                // Jika ingin respons yang rapi, bisa lakukan pemetaan
+                
                 var responseData = merchants.Select(m => new MerchantResponse
                 {
                     Id = m.Id.ToString(),

@@ -66,28 +66,25 @@ builder.Services.AddScoped<IAdminVehicleService, AdminVehicleService>();
 builder.Services.AddScoped<IUserVehicleService, UserVehicleService>();
 builder.Services.AddScoped<IVerificationCodeService, VerificationCodeService>();
 
-// Mendaftarkan SmtpSettings dari konfigurasi
+// Registering SmtpSettings from the configuration
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 
-// Mendaftarkan Helpers sebagai Singleton atau Scoped
+// Registering Helpers as Singleton or Scoped
 builder.Services.AddSingleton<MailService>();
 builder.Services.AddScoped<CodeGeneratorUtil>();
 builder.Services.AddScoped<InfoAccount>();
 
 
-// --- Pendaftaran AutoMapper dan Service Mapper Anda ---
-// Tambahkan AutoMapper. AutoMapper akan mencari semua profile di assembly saat ini.
+// Add AutoMapper. AutoMapper will search for all profiles in the current assembly.
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
-// Daftarkan ParkingSpotResponseMapper sebagai Scoped
+// Register ParkingSpotResponseMapper as Scoped
 builder.Services.AddScoped<ParkingSpotResponseMapper>();
 builder.Services.AddScoped<ParkingTransactionResponseMapper>();
 builder.Services.AddScoped<ReportResponseMapper>();
 builder.Services.AddScoped<VehicleResponseMapper>();
 
 // === JWT Service ===
-// Perbaikan: Daftarkan IJwtService dan JwtService untuk Dependency Injection yang benar.
-// JwtService masih dibutuhkan untuk MENGHASILKAN token.
 builder.Services.AddScoped<IJwtService, JwtService>();
 
 // === Identity Configuration === //UserDetailsService (open)
@@ -124,8 +121,7 @@ builder.Services.AddAuthentication(options => //AuthenticationProvider
         ValidIssuer = builder.Configuration["Jwt:Issuer"], 
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(key),
-        // Tambahkan konfigurasi ClockSkew agar sesuai dengan JwtService
-        ClockSkew = TimeSpan.Zero
+        ClockSkew = TimeSpan.Zero // Add the ClockSkew configuration to match JwtService
     };
 });
 
@@ -156,7 +152,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    // Opsi untuk mendefinisikan skema keamanan JWT. Ini akan menampilkan "Authorize" button di Swagger UI.
+    // Option to define the JWT security scheme. This will display the “Authorize” button in Swagger UI.
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "Masukkan 'Bearer' diikuti dengan spasi dan JWT token. Contoh: 'Bearer asdfghjkl12345'",
@@ -197,19 +193,19 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowLocalhost3000");
 
-app.UseAuthentication(); // <== WAJIB sebelum Authorization
+app.UseAuthentication(); 
 app.UseAuthorization();
 
-// --- Inisialisasi Peran & Admin Pertama ---
+// --- Initialization of Roles & First Admin ---
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
 
-    // Seeding Peran
+    // Seeding Role
     await SeedRolesAsync(roleManager);
 
-    // Seeding Admin Pertama
+    // First Admin Seeding
     await SeedAdminUserAsync(userManager, roleManager);
 }
 
@@ -219,7 +215,7 @@ app.MapControllers();
 
 app.Run();
 
-// --- Metode untuk seeding Peran & Admin ---
+// --- Methods for seeding Roles & Admin ---
 async Task SeedRolesAsync(RoleManager<IdentityRole<Guid>> roleManager)
 {
     if (!await roleManager.RoleExistsAsync("Admin"))
@@ -246,7 +242,7 @@ async Task SeedAdminUserAsync(UserManager<User> userManager, RoleManager<Identit
             Balance = 0m
         };
 
-        await userManager.CreateAsync(adminUser, "P@ssword123"); // Ganti kata sandi ini di produksi!
+        await userManager.CreateAsync(adminUser, "P@ssword123"); 
         await userManager.AddToRoleAsync(adminUser, "Admin");
     }
 }

@@ -13,7 +13,7 @@ namespace LegalPark.Models.DTOs.Response.Report
         public DateTime EntryTime { get; set; }
 
         [JsonPropertyName("exitTime")]
-        public DateTime? ExitTime { get; set; } // Menggunakan tipe nullable karena mungkin belum keluar
+        public DateTime? ExitTime { get; set; } // Using nullable types
 
         [JsonPropertyName("totalCost")]
         public decimal TotalCost { get; set; }

@@ -21,11 +21,7 @@ namespace LegalPark.Exception
         [JsonPropertyName("error")]
         public object? Error { get; set; }
 
-        /// <summary>
-        /// Membuat respons sukses dengan status OK (200).
-        /// </summary>
-        /// <param name="responseObj">Objek data yang akan disertakan dalam respons.</param>
-        /// <returns>Objek IActionResult yang berisi respons terstruktur.</returns>
+        
         public static IActionResult GenerateResponseSuccess(object responseObj)
         {
             var response = new ResponseHandler
@@ -43,13 +39,7 @@ namespace LegalPark.Exception
             };
         }
 
-        /// <summary>
-        /// Membuat respons sukses dengan status, pesan, dan data yang disesuaikan.
-        /// </summary>
-        /// <param name="status">Status HTTP yang akan digunakan.</param>
-        /// <param name="message">Pesan respons.</param>
-        /// <param name="data">Objek data yang akan disertakan.</param>
-        /// <returns>Objek IActionResult yang berisi respons terstruktur.</returns>
+        
         public static IActionResult GenerateResponseSuccess(HttpStatusCode status, string message, object data)
         {
             var response = new ResponseHandler
@@ -67,13 +57,7 @@ namespace LegalPark.Exception
             };
         }
 
-        /// <summary>
-        /// Membuat respons kesalahan dengan status, objek kesalahan, dan pesan yang disesuaikan.
-        /// </summary>
-        /// <param name="status">Status HTTP kesalahan.</param>
-        /// <param name="error">Objek yang berisi detail kesalahan.</param>
-        /// <param name="message">Pesan kesalahan.</param>
-        /// <returns>Objek IActionResult yang berisi respons kesalahan terstruktur.</returns>
+        
         public static IActionResult GenerateResponseError(HttpStatusCode status, object error, string message)
         {
             var response = new ResponseHandler

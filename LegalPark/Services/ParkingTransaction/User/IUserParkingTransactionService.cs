@@ -5,40 +5,24 @@ namespace LegalPark.Services.ParkingTransaction.User
 {
     public interface IUserParkingTransactionService
     {
-        /// <summary>
-        /// [PENGGUNA] Mencatat masuknya kendaraan ke slot parkir.
-        /// </summary>
-        /// <param name="request">Objek permintaan yang berisi detail masuk.</param>
-        /// <returns>IActionResult yang mewakili status respons HTTP.</returns>
+
+        /// [USER] Records the entry of vehicles into parking slots.
         Task<IActionResult> RecordParkingEntry(ParkingEntryRequest request);
 
-        /// <summary>
-        /// [PENGGUNA] Mencatat keluarnya kendaraan dari slot parkir dan memproses pembayaran.
-        /// </summary>
-        /// <param name="request">Objek permintaan yang berisi detail keluar.</param>
-        /// <returns>IActionResult yang mewakili status respons HTTP.</returns>
+        
+        /// [USER] Records vehicles leaving parking slots and processes payments.
         Task<IActionResult> RecordParkingExit(ParkingExitRequest request);
 
-        /// <summary>
-        /// [PENGGUNA] Mengambil transaksi parkir yang sedang aktif untuk plat nomor kendaraan pengguna.
-        /// </summary>
-        /// <param name="licensePlate">Plat nomor kendaraan.</param>
-        /// <returns>IActionResult yang berisi detail transaksi aktif.</returns>
+
+        /// [USER] Retrieves active parking transactions for the user's vehicle license plate number.
         Task<IActionResult> GetUserActiveParkingTransaction(string licensePlate);
 
-        /// <summary>
-        /// [PENGGUNA] Mengambil riwayat semua transaksi parkir yang terkait dengan plat nomor kendaraan pengguna.
-        /// </summary>
-        /// <param name="licensePlate">Plat nomor kendaraan.</param>
-        /// <returns>IActionResult yang berisi riwayat transaksi.</returns>
+
+        /// [USER] Retrieves the history of all parking transactions associated with the user's vehicle license plate number.
         Task<IActionResult> GetUserParkingTransactionHistory(string licensePlate);
 
-        /// <summary>
-        /// [PENGGUNA] Mengambil detail transaksi parkir tertentu berdasarkan ID transaksi.
-        /// </summary>
-        /// <param name="transactionId">ID unik dari transaksi.</param>
-        /// <param name="licensePlate">Plat nomor kendaraan.</param>
-        /// <returns>IActionResult yang berisi detail transaksi.</returns>
+
+        /// [USER] Retrieves specific parking transaction details based on the transaction ID.
         Task<IActionResult> GetUserParkingTransactionDetails(string transactionId, string licensePlate);
     }
 }

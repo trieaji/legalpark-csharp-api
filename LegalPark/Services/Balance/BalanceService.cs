@@ -25,7 +25,7 @@ namespace LegalPark.Services.Balance
 
             try
             {
-                // Validasi GUID
+                
                 if (!Guid.TryParse(request.UserId, out Guid userIdGuid))
                 {
                     _logger.LogWarning("Deduct balance failed: Invalid user ID format: {UserId}", request.UserId);
@@ -39,7 +39,7 @@ namespace LegalPark.Services.Balance
                     return ResponseHandler.GenerateResponseError(HttpStatusCode.NotFound, "FAILED", $"User not found with ID: {request.UserId}");
                 }
 
-                // Cek status akun: hanya ACTIVE yang bisa melakukan pembayaran
+                // Check account status: only ACTIVE accounts can make payments
                 if (user.AccountStatus != AccountStatus.ACTIVE)
                 {
                     _logger.LogWarning("Deduct balance failed: Account is not active for transactions. User ID: {UserId}, Current status: {Status}", user.Id, user.AccountStatus.ToString());
@@ -84,7 +84,7 @@ namespace LegalPark.Services.Balance
 
             try
             {
-                // Validasi GUID
+                
                 if (!Guid.TryParse(request.UserId, out Guid userIdGuid))
                 {
                     _logger.LogWarning("Add balance failed: Invalid user ID format: {UserId}", request.UserId);
@@ -128,7 +128,7 @@ namespace LegalPark.Services.Balance
         {
             try
             {
-                // Validasi GUID
+                
                 if (!Guid.TryParse(userId, out Guid userIdGuid))
                 {
                     _logger.LogWarning("Get user balance failed: Invalid user ID format: {UserId}", userId);

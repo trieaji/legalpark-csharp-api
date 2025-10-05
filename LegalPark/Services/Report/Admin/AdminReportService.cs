@@ -56,7 +56,7 @@ namespace LegalPark.Services.Report.Admin
 
             if (string.IsNullOrEmpty(merchantCode))
             {
-                // Grouping by merchant
+                
                 var transactionsByMerchant = paidTransactions
                     .Where(t => t.ParkingSpot != null && t.ParkingSpot.Merchant != null)
                     .GroupBy(t => t.ParkingSpot.Merchant.MerchantCode);
@@ -98,7 +98,7 @@ namespace LegalPark.Services.Report.Admin
                 MerchantName = merchantName,
                 TotalRevenue = totalRevenue,
                 TotalPaidTransactions = totalPaidTransactions,
-                TotalFailedTransactions = 0 // kalau mau dihitung bisa ditambahkan logika
+                TotalFailedTransactions = 0 
             };
         }
 

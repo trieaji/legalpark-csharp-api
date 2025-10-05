@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LegalPark.Repositories.ParkingTransaction
 {
-    // Implementasi spesifik untuk ParkingTransactionRepository
+    
     public class ParkingTransactionRepository : GenericRepository<LegalPark.Models.Entities.ParkingTransaction>, IParkingTransactionRepository
     {
         public ParkingTransactionRepository(LegalParkDbContext context) : base(context) { }
@@ -35,7 +35,7 @@ namespace LegalPark.Repositories.ParkingTransaction
     Guid transactionId,
     LegalPark.Models.Entities.PaymentStatus newPaymentStatus)
         {
-            // Ambil data lengkap beserta relasi-relasi
+            
             var transaction = await _context.ParkingTransactions
                 .Include(pt => pt.Vehicle)
                     .ThenInclude(v => v.Owner)
@@ -45,19 +45,19 @@ namespace LegalPark.Repositories.ParkingTransaction
 
             if (transaction == null)
             {
-                return null; // tidak ditemukan
+                return null; 
             }
 
-            // Update PaymentStatus
+            
             transaction.PaymentStatus = newPaymentStatus;
 
-            // Tandai entity untuk update
+            
             _context.ParkingTransactions.Update(transaction);
 
-            // Simpan ke database
+            
             await _context.SaveChangesAsync();
 
-            return transaction; // kembalikan entity lengkap yang sudah diupdate
+            return transaction; 
         }
 
 
@@ -114,9 +114,9 @@ namespace LegalPark.Repositories.ParkingTransaction
         {
             return await _context.ParkingTransactions
                                  .Include(pt => pt.ParkingSpot)
-                            .ThenInclude(ps => ps.Merchant) // penting
+                            .ThenInclude(ps => ps.Merchant) 
                          .Include(pt => pt.Vehicle)
-                            .ThenInclude(v => v.Owner)      // supaya vehicle.Owner tidak null lagi
+                            .ThenInclude(v => v.Owner)      
                          .Where(pt => pt.VehicleId == vehicle.Id && pt.Status == status)
                          .FirstOrDefaultAsync();
         }

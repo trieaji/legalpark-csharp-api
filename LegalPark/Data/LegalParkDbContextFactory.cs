@@ -7,9 +7,7 @@ namespace LegalPark.Data
     {
         public LegalParkDbContext CreateDbContext(string[] args)
         {
-            // Cara yang lebih baik dan dinamis untuk menemukan path proyek.
-            // Kode ini akan mencari file appsettings.json di direktori proyek
-            // tidak peduli di mana proyek itu berada.
+            
             var basePath = Directory.GetCurrentDirectory();
 
             var configuration = new ConfigurationBuilder()

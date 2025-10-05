@@ -23,7 +23,7 @@ namespace LegalPark.Services.ParkingTransaction.User
 {
     public class UserParkingTransactionService : IUserParkingTransactionService
     {
-        // Field untuk dependency injection dari repository dan service.
+        
         private readonly ILogger<UserParkingTransactionService> _logger;
         private readonly IParkingTransactionRepository _parkingTransactionRepository;
         private readonly IVehicleRepository _vehicleRepository;
@@ -35,7 +35,7 @@ namespace LegalPark.Services.ParkingTransaction.User
         private readonly INotificationService _notificationService;
         private readonly ITemplateService _templateService;
 
-        // Constructor untuk menginjeksikan dependensi.
+        
         public UserParkingTransactionService(
             ILogger<UserParkingTransactionService> logger,
             IParkingTransactionRepository parkingTransactionRepository,
@@ -60,43 +60,40 @@ namespace LegalPark.Services.ParkingTransaction.User
             _templateService = templateService;
         }
 
-        /// <summary>
-        /// Merekam entri parkir baru untuk sebuah kendaraan.
-        /// </summary>
-        /// <param name="request">Objek request yang berisi detail entri parkir.</param>
-        /// <returns>IActionResult yang mengindikasikan keberhasilan atau kegagalan.</returns>
+        
+        
         public async Task<IActionResult> RecordParkingEntry(ParkingEntryRequest request)
         {
             _logger.LogInformation("Processing parking entry request for license plate: {LicensePlate}", request.LicensePlate);
 
-            // 1. Cari Kendaraan berdasarkan plat nomor.
+            // 1. Search for vehicles by license plate number.
             var vehicle = await _vehicleRepository.findByLicensePlate(request.LicensePlate);
             if (vehicle == null)
             {
                 _logger.LogWarning("Vehicle with license plate '{LicensePlate}' not found.", request.LicensePlate);
-                // Menggunakan ResponseHandler.GenerateResponseError
+                
                 return ResponseHandler.GenerateResponseError(HttpStatusCode.NotFound, "FAILED", $"Vehicle with license plate '{request.LicensePlate}' not registered.");
             }
 
-            // 2. Cari Merchant berdasarkan kode merchant.
+            // 2. Search for merchants by merchant code.
             var merchant = await _merchantRepository.FindByMerchantCodeAsync(request.MerchantCode);
             if (merchant == null)
             {
                 _logger.LogWarning("Merchant not found with code: {MerchantCode}", request.MerchantCode);
-                // Menggunakan ResponseHandler.GenerateResponseError
+                
                 return ResponseHandler.GenerateResponseError(HttpStatusCode.NotFound, "FAILED", $"Merchant not found with code: {request.MerchantCode}.");
             }
 
-            // 3. Cek apakah kendaraan sudah memiliki transaksi aktif.
+            // 3. Check whether the vehicle already has an active transaction.
             var activeTransaction = await _parkingTransactionRepository.findByVehicleAndStatus(vehicle, ParkingStatus.ACTIVE);
             if (activeTransaction != null)
             {
                 _logger.LogWarning("Vehicle '{LicensePlate}' already has an active parking session.", request.LicensePlate);
-                // Menggunakan ResponseHandler.GenerateResponseError
+                
                 return ResponseHandler.GenerateResponseError(HttpStatusCode.Conflict, "FAILED", $"Vehicle '{request.LicensePlate}' already has an active parking session.");
             }
 
-            // 4. Alokasi Slot Parkir.
+            // 4. Parking Space Allocation.
             LegalPark.Models.Entities.ParkingSpot parkingSpot;
             if (!string.IsNullOrEmpty(request.SpotNumber))
             {
@@ -125,7 +122,7 @@ namespace LegalPark.Services.ParkingTransaction.User
                 parkingSpot = availableSpots.FirstOrDefault();
             }
 
-            // 5. Update Status Slot Parkir.
+            // 5. Update Parking Space Status.
             if (parkingSpot != null)
             {
                 parkingSpot.Status = ParkingSpotStatus.OCCUPIED;
@@ -139,7 +136,7 @@ namespace LegalPark.Services.ParkingTransaction.User
                 return ResponseHandler.GenerateResponseError(HttpStatusCode.InternalServerError, "FAILED", "An internal error occurred during spot allocation.");
             }
 
-            // 6. Buat Transaksi Parkir Baru.
+            // 6. Create a New Parking Transaction.
             var newTransaction = new LegalPark.Models.Entities.ParkingTransaction
             {
                 Id = Guid.NewGuid(),
@@ -158,7 +155,7 @@ namespace LegalPark.Services.ParkingTransaction.User
 
             _logger.LogInformation("New parking transaction created for Transaction ID: {TransactionId}", newTransaction.Id);
 
-            // 7. Siapkan response dan kirimkan.
+            // 7. Prepare your response and send it.
             var response = new ParkingTransactionResponse
             {
                 Id = newTransaction.Id.ToString(),
@@ -198,7 +195,7 @@ namespace LegalPark.Services.ParkingTransaction.User
 
             _logger.LogInformation("Successfully recorded parking entry for {LicensePlate}.", newTransaction.Vehicle.LicensePlate);
 
-            // Menggunakan GenerateResponseSuccess dengan status dan pesan
+            
             return ResponseHandler.GenerateResponseSuccess(HttpStatusCode.OK, "Parking entry recorded successfully.", response);
         }
 
@@ -208,7 +205,7 @@ namespace LegalPark.Services.ParkingTransaction.User
         {
             _logger.LogInformation("Processing parking exit request for license plate: {LicensePlate}", request.LicensePlate);
 
-            // 1. Cari Kendaraan
+            // 1. Search for Vehicles
             var vehicle = await _vehicleRepository.findByLicensePlate(request.LicensePlate);
             if (vehicle == null)
             {
@@ -216,7 +213,7 @@ namespace LegalPark.Services.ParkingTransaction.User
                 return ResponseHandler.GenerateResponseError(HttpStatusCode.NotFound, "FAILED", $"Vehicle with license plate '{request.LicensePlate}' not registered.");
             }
 
-            // 2. Cari Merchant
+            // 2. Find a Merchant
             var merchant = await _merchantRepository.FindByMerchantCodeAsync(request.MerchantCode);
             if (merchant == null)
             {
@@ -224,7 +221,7 @@ namespace LegalPark.Services.ParkingTransaction.User
                 return ResponseHandler.GenerateResponseError(HttpStatusCode.NotFound, "FAILED", $"Merchant not found with code: {request.MerchantCode}.");
             }
 
-            // 3. Cari transaksi aktif untuk kendaraan ini di merchant yang sama
+            // 3. Search for active transactions for this vehicle at the same merchant
             var activeTransaction = await _parkingTransactionRepository.findByVehicleAndStatus(vehicle, ParkingStatus.ACTIVE);
             if (activeTransaction == null)
             {
@@ -232,18 +229,18 @@ namespace LegalPark.Services.ParkingTransaction.User
                 return ResponseHandler.GenerateResponseError(HttpStatusCode.NotFound, "FAILED", $"No active parking session found for vehicle '{request.LicensePlate}'.");
             }
 
-            // Verifikasi bahwa transaksi aktif memang di merchant yang sama
+            // Verify that the active transaction is indeed at the same merchant.
             if (activeTransaction.ParkingSpot?.Merchant?.MerchantCode != request.MerchantCode)
             {
                 return ResponseHandler.GenerateResponseError(HttpStatusCode.BadRequest, "FAILED", "Active parking session for this vehicle is not at the specified merchant.");
             }
 
-            // 4. Update Waktu Keluar & Hitung Biaya Parkir
+            // 4. Update Exit Time & Calculate Parking Fees
             activeTransaction.ExitTime = DateTime.UtcNow;
             decimal totalCost = CalculateParkingCost(activeTransaction);
             activeTransaction.TotalCost = totalCost;
 
-            // 5. Proses Pembayaran
+            // 5. Payment Process
             if (vehicle.Owner == null || vehicle.Owner.Id == Guid.Empty)
             {
                 _logger.LogError("Vehicle owner information missing for payment. Cannot process payment.");
@@ -257,13 +254,13 @@ namespace LegalPark.Services.ParkingTransaction.User
                 request.VerificationCode
             );
 
-            // 6. Berdasarkan hasil pembayaran, perbarui status transaksi
+            // 6. Based on the payment results, update the transaction status.
             if (paymentResult == PaymentResult.SUCCESS)
             {
                 activeTransaction.PaymentStatus = PaymentStatus.PAID;
                 activeTransaction.Status = ParkingStatus.COMPLETED;
 
-                // Update Status Slot Parkir
+                // Update Parking Space Status
                 var parkingSpot = activeTransaction.ParkingSpot;
                 if (parkingSpot != null)
                 {
@@ -271,11 +268,11 @@ namespace LegalPark.Services.ParkingTransaction.User
                     _parkingSpotRepository.Update(parkingSpot);
                 }
 
-                // Simpan transaksi dan slot parkir yang sudah diperbarui
+                // Save updated transactions and parking slots
                 _parkingTransactionRepository.Update(activeTransaction);
                 await _parkingTransactionRepository.SaveChangesAsync();
 
-                // Siapkan dan kirim notifikasi email
+                // Prepare and send email notifications
                 try
                 {
                     var templateVariables = new System.Collections.Generic.Dictionary<string, object>
@@ -326,9 +323,7 @@ namespace LegalPark.Services.ParkingTransaction.User
 
 
 
-        /// <summary>
-        /// Menghitung total biaya parkir berdasarkan durasi.
-        /// </summary>
+        
         private decimal CalculateParkingCost(LegalPark.Models.Entities.ParkingTransaction transaction)
         {
             if (transaction.EntryTime == null || transaction.ExitTime == null)
@@ -336,11 +331,11 @@ namespace LegalPark.Services.ParkingTransaction.User
                 return 0;
             }
 
-            // Hitung durasi dalam menit.
+            // Calculate the duration in minutes.
             var duration = transaction.ExitTime.Value - transaction.EntryTime;
             long totalMinutes = (long)duration.TotalMinutes;
 
-            // Contoh tarif sederhana: Rp 5.000 per jam, pembulatan ke atas.
+            // Example of a simple rate: Rp 5,000 per hour, rounded up.
             decimal hourlyRate = 5000;
             long hours = (totalMinutes + 59) / 60;
             if (hours == 0 && totalMinutes > 0)
@@ -357,7 +352,7 @@ namespace LegalPark.Services.ParkingTransaction.User
 
         public async Task<IActionResult> GetUserActiveParkingTransaction(string licensePlate)
         {
-            // Cari kendaraan
+            // Search for vehicles
             var vehicle = await _vehicleRepository.findByLicensePlate(licensePlate);
             if (vehicle == null)
             {
@@ -365,27 +360,24 @@ namespace LegalPark.Services.ParkingTransaction.User
                 return ResponseHandler.GenerateResponseError(HttpStatusCode.NotFound, "FAILED", $"Vehicle with license plate '{licensePlate}' not registered.");
             }
 
-            // Cari transaksi aktif
+            // Search for active transactions
             var activeTransaction = await _parkingTransactionRepository.findByVehicleAndStatus(vehicle, ParkingStatus.ACTIVE);
             if (activeTransaction == null)
             {
-                // Note: Berbeda dengan Java, respons ini mengembalikan 'OK' tapi dengan pesan "No active session".
+                
                 _logger.LogInformation("No active parking session found for vehicle '{LicensePlate}'.", licensePlate);
                 return ResponseHandler.GenerateResponseSuccess(HttpStatusCode.OK, "No active parking session found for vehicle '" + licensePlate + "'.", null);
             }
 
-            // Map entitas ke DTO dan kembalikan respons sukses
+            
             var response = _parkingTransactionResponseMapper.MapToParkingTransactionResponse(activeTransaction);
             return ResponseHandler.GenerateResponseSuccess(HttpStatusCode.OK, "SUCCESS", response);
         }
 
-        /// <summary>
-        /// Mendapatkan riwayat transaksi parkir untuk kendaraan.
-        /// </summary>
-        /// <param name="licensePlate">Plat nomor kendaraan.</param>
+        
         public async Task<IActionResult> GetUserParkingTransactionHistory(string licensePlate)
         {
-            // Cari kendaraan
+            
             var vehicle = await _vehicleRepository.findByLicensePlate(licensePlate);
             if (vehicle == null)
             {
@@ -393,31 +385,26 @@ namespace LegalPark.Services.ParkingTransaction.User
                 return ResponseHandler.GenerateResponseError(HttpStatusCode.NotFound, "FAILED", $"Vehicle with license plate '{licensePlate}' not registered.");
             }
 
-            // Ambil semua transaksi
+            
             var transactions = await _parkingTransactionRepository.findByVehicle(vehicle);
 
-            // Menggunakan LINQ untuk memetakan daftar entitas ke daftar DTO
+            
             var responses = transactions.Select(t => _parkingTransactionResponseMapper.MapToParkingTransactionResponse(t)).ToList();
 
             return ResponseHandler.GenerateResponseSuccess(HttpStatusCode.OK, "SUCCESS", responses);
         }
 
-        /// <summary>
-        /// Mendapatkan detail transaksi parkir tertentu.
-        /// </summary>
-        /// <param name="transactionId">ID transaksi.</param>
-        /// <param name="licensePlate">Plat nomor kendaraan.</param>
+        
         public async Task<IActionResult> GetUserParkingTransactionDetails(string transactionId, string licensePlate)
         {
-            // Konversi string transactionId ke Guid.
-            // Gunakan TryParse untuk penanganan error yang aman jika string tidak valid.
+            
             if (!Guid.TryParse(transactionId, out Guid transactionGuid))
             {
                 _logger.LogWarning("Invalid transaction ID format: {TransactionId}", transactionId);
                 return ResponseHandler.GenerateResponseError(HttpStatusCode.BadRequest, "FAILED", "Invalid transaction ID format.");
             }
 
-            // Cari transaksi berdasarkan ID
+            
             var transaction = await _parkingTransactionRepository.GetByIdWithDetailsAsync(transactionGuid);
             if (transaction == null)
             {
@@ -425,14 +412,14 @@ namespace LegalPark.Services.ParkingTransaction.User
                 return ResponseHandler.GenerateResponseError(HttpStatusCode.NotFound, "FAILED", $"Parking transaction not found with ID: {transactionId}.");
             }
 
-            // Validasi keamanan: Pastikan transaksi ini milik kendaraan yang memiliki plat nomor yang diberikan
+            
             if (!transaction.Vehicle.LicensePlate.Equals(licensePlate))
             {
                 _logger.LogWarning("Access denied. Transaction {TransactionId} does not belong to vehicle '{LicensePlate}'.", transactionId, licensePlate);
                 return ResponseHandler.GenerateResponseError(HttpStatusCode.Forbidden, "FAILED", "Access denied. This transaction does not belong to the specified vehicle.");
             }
 
-            // Map entitas ke DTO dan kembalikan respons sukses
+            
             var response = _parkingTransactionResponseMapper.MapToParkingTransactionResponse(transaction);
             return ResponseHandler.GenerateResponseSuccess(HttpStatusCode.OK, "SUCCESS", response);
         }

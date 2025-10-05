@@ -33,8 +33,7 @@ namespace LegalPark.Models.Entities
         [Column("parking_transaction_id")]
         public Guid? ParkingTransactionId { get; set; }
 
-        // Properti navigasi ke objek ParkingTransaction
-        // Di sini tidak ada ICollection karena ini adalah sisi "satu" dari relasi One-to-One
+        
         public ParkingTransaction ParkingTransaction { get; set; }
 
         public PaymentVerificationCode() { }

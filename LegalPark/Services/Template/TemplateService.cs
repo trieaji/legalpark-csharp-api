@@ -6,12 +6,12 @@ namespace LegalPark.Services.Template
     {
         private readonly RazorLightEngine _razorLightEngine;
 
-        // Konstruktor ini menerima RazorLightEngine melalui Dependency Injection.
+        
         public TemplateService()
         {
-            // Konfigurasi RazorLightEngine.
-            // Basis direktori ditentukan sebagai "Templates" di root proyek.
-            // Ini akan mencari file template di folder yang bernama "Templates".
+            // RazorLightEngine configuration.
+            // The base directory is specified as “Templates” in the project root.
+            // It will search for template files in the folder named “Templates”.
             _razorLightEngine = new RazorLightEngineBuilder()
                 .SetOperatingAssembly(typeof(TemplateService).Assembly)
                 .UseFileSystemProject(Path.Combine(Directory.GetCurrentDirectory(), "Templates"))
@@ -20,15 +20,14 @@ namespace LegalPark.Services.Template
 
         public async Task<string> ProcessEmailTemplateAsync<T>(string templateName, T model)
         {
-            // Method ini memproses template.
-            // Parameter templateName merujuk pada nama file, misalnya "EmailConfirmation.cshtml".
-            // Parameter model adalah objek yang berisi data yang akan digunakan di template.
-            // RazorLight akan merender template dan mengembalikan string HTML yang telah diproses.
+            // This method processes templates.
+            // The templateName parameter refers to the file name, for example, “EmailConfirmation.cshtml”.
+            // The model parameter is an object that contains the data to be used in the template.
+            // RazorLight will render the template and return the processed HTML string.
 
-            // Catatan: Pastikan Anda telah menginstal paket NuGet RazorLight.
-            // Perintahnya: dotnet add package RazorLight
 
-            // Nama template harus menyertakan ekstensi file
+
+            // The template name must include the file extension.
             var fullTemplatePath = $"{templateName}.cshtml";
 
             return await _razorLightEngine.CompileRenderAsync(fullTemplatePath, model);

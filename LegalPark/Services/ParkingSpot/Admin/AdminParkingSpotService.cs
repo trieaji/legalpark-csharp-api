@@ -15,7 +15,7 @@ namespace LegalPark.Services.ParkingSpot.Admin
         private readonly IMerchantRepository _merchantRepository;
         private readonly ParkingSpotResponseMapper _parkingSpotResponseMapper;
 
-        // Gunakan Constructor Injection untuk memasukkan dependencies.
+        
         public AdminParkingSpotService(
             IParkingSpotRepository parkingSpotRepository,
             IMerchantRepository merchantRepository,
@@ -28,21 +28,21 @@ namespace LegalPark.Services.ParkingSpot.Admin
 
         public async Task<IActionResult> AdminCreateParkingSpot(ParkingSpotRequest request)
         {
-            // 1. Cari Merchant berdasarkan merchantCode
+            // 1. Search for merchants based on merchantCode
             var merchant = await _merchantRepository.FindByMerchantCodeAsync(request.MerchantCode);
             if (merchant == null)
             {
                 return ResponseHandler.GenerateResponseError(HttpStatusCode.NotFound, "FAILED", $"Merchant not found with code: {request.MerchantCode}");
             }
 
-            // 2. Cek apakah spotNumber sudah ada di merchant yang sama
+            // 2. Check whether the spotNumber already exists at the same merchant
             var existingSpot = await _parkingSpotRepository.findBySpotNumberAndMerchant(request.SpotNumber, merchant);
             if (existingSpot != null)
             {
                 return ResponseHandler.GenerateResponseError(HttpStatusCode.Conflict, "FAILED", $"Parking spot with number '{request.SpotNumber}' already exists for this merchant.");
             }
 
-            // 3. Konversi DTO ke Entity
+            // 3. Converting DTO to Entity
             var parkingSpot = new Models.Entities.ParkingSpot
             {
                 SpotNumber = request.SpotNumber,
@@ -52,7 +52,7 @@ namespace LegalPark.Services.ParkingSpot.Admin
                 UpdatedAt = DateTime.UtcNow
             };
 
-            // Konversi String ke Enum SpotType
+            // Convert String to Enum SpotType
             if (Enum.TryParse(request.SpotType, true, out SpotType spotType))
             {
                 parkingSpot.SpotType = spotType;
@@ -62,20 +62,20 @@ namespace LegalPark.Services.ParkingSpot.Admin
                 return ResponseHandler.GenerateResponseError(HttpStatusCode.BadRequest, "FAILED", $"Invalid spot type: {request.SpotType}");
             }
 
-            // Set status awal sebagai AVAILABLE
+            // Set the initial status as AVAILABLE
             parkingSpot.Status = ParkingSpotStatus.AVAILABLE;
 
-            // 4. Tambahkan ke database
+            // 4. Add to database
             await _parkingSpotRepository.AddAsync(parkingSpot);
 
-            //5. Simpan ke database
+            //5. Save to database
             await _parkingSpotRepository.SaveChangesAsync();
 
-            // Setelah AddAsync, objek 'parkingSpot' sudah diperbarui dengan ID dari database.
-            // Pastikan entitas memiliki properti navigasi `Merchant` dimuat.
+            // After AddAsync, the ‘parkingSpot’ object has been updated with the ID from the database.
+            // Ensure that the entity has the `Merchant` navigation property loaded.
             parkingSpot.Merchant = merchant;
 
-            // 6. Konversi Entity yang disimpan ke DTO Response
+            // 6. Convert stored Entities to DTO Response
             var response = _parkingSpotResponseMapper.MapToParkingSpotResponse(parkingSpot);
             return ResponseHandler.GenerateResponseSuccess(response);
         }
@@ -118,10 +118,10 @@ namespace LegalPark.Services.ParkingSpot.Admin
                 return ResponseHandler.GenerateResponseError(HttpStatusCode.NotFound, "FAILED", $"Parking spot not found with ID: {id}");
             }
 
-            // Perbarui field yang tidak null di request
+            
             if (request.SpotNumber != null)
             {
-                // Jika spotNumber diubah, cek keunikan dengan merchant saat ini
+                
                 var existingSpot = await _parkingSpotRepository.findBySpotNumberAndMerchant(request.SpotNumber, parkingSpot.Merchant);
                 if (existingSpot != null && existingSpot.Id != parkingSpotId)
                 {
@@ -159,7 +159,7 @@ namespace LegalPark.Services.ParkingSpot.Admin
                 parkingSpot.Floor = request.Floor;
             }
 
-            // Cek jika merchantCode diubah
+            
             if (request.MerchantCode != null && !string.Equals(request.MerchantCode, parkingSpot.Merchant?.MerchantCode, StringComparison.OrdinalIgnoreCase))
             {
                 var newMerchant = await _merchantRepository.FindByMerchantCodeAsync(request.MerchantCode);
@@ -181,7 +181,7 @@ namespace LegalPark.Services.ParkingSpot.Admin
 
             parkingSpot.UpdatedAt = DateTime.UtcNow;
 
-            // Simpan perubahan
+            
             _parkingSpotRepository.Update(parkingSpot);
 
             await _parkingSpotRepository.SaveChangesAsync();

@@ -12,13 +12,13 @@ namespace LegalPark.Services.Payment
 {
     public class PaymentService : IPaymentService
     {
-        // Dependency Injection - bidang readonly untuk menyimpan instance layanan
+        
         private readonly ILogger<PaymentService> _logger;
         private readonly IVerificationCodeService _verificationCodeService;
         private readonly IBalanceService _balanceService;
         private readonly IParkingTransactionRepository _parkingTransactionRepository;
 
-        // Konstruktor untuk menerima dependensi melalui injeksi
+        
         public PaymentService(
             ILogger<PaymentService> logger,
             IVerificationCodeService verificationCodeService,
@@ -31,15 +31,7 @@ namespace LegalPark.Services.Payment
             _parkingTransactionRepository = parkingTransactionRepository;
         }
 
-        /// <summary>
-        /// Memproses pembayaran simulasi untuk transaksi parkir.
-        /// Mengikuti alur bisnis dari implementasi Java asli.
-        /// </summary>
-        /// <param name="userId">ID pengguna sebagai string.</param>
-        /// <param name="amount">Jumlah yang harus dibayarkan.</param>
-        /// <param name="parkingTransactionId">ID transaksi parkir sebagai string.</param>
-        /// <param name="verificationCode">Kode verifikasi yang diberikan pengguna.</param>
-        /// <returns>Hasil pembayaran dalam bentuk enum PaymentResult.</returns>
+        
         public async Task<PaymentResult> ProcessParkingPayment(string userId, decimal amount, string parkingTransactionId, string verificationCode)
         {
             _logger.LogInformation("Processing payment for User ID: {UserId}, Amount: {Amount}, Parking Transaction ID: {ParkingTransactionId}",
@@ -47,9 +39,8 @@ namespace LegalPark.Services.Payment
 
             try
             {
-                // =========================================================
-                // 1. Validasi Kode Verifikasi Pembayaran
-                // =========================================================
+
+                // 1. Payment Verification Code Validation
                 var verifyCodeRequest = new VerifyPaymentCodeRequest
                 {
                     UserId = userId,
@@ -57,10 +48,10 @@ namespace LegalPark.Services.Payment
                     ParkingTransactionId = parkingTransactionId
                 };
 
-                // Panggil VerificationCodeService untuk validasi.
+                // Call VerificationCodeService for validation.
                 var verificationResponse = await _verificationCodeService.ValidatePaymentVerificationCode(verifyCodeRequest);
 
-                // Periksa status respons. Jika tidak berhasil (misalnya BadRequest), gagal.
+                // Check the response status. If unsuccessful (e.g., BadRequest), fail.
                 if (verificationResponse is ObjectResult vrObj)
                 {
                     if (vrObj.StatusCode == (int)HttpStatusCode.OK || vrObj.StatusCode == null)
@@ -86,26 +77,24 @@ namespace LegalPark.Services.Payment
                 }
 
 
-                // =========================================================
-                // 2. Memanggil BalanceService untuk mengurangi saldo
-                // =========================================================
+
+                // 2. Call BalanceService to reduce the balance
                 var deductRequest = new DeductBalanceRequest
                 {
                     UserId = userId,
                     Amount = amount
                 };
 
-                // Panggil layanan untuk mengurangi saldo
+                // Call the service to reduce the balance
                 var deductResponse = await _balanceService.DeductBalance(deductRequest);
 
-                // Periksa status respons pengurangan saldo
+                // Check the balance reduction response status
                 if (deductResponse is ObjectResult obj)
                 {
                     if (obj.StatusCode == (int)HttpStatusCode.OK || obj.StatusCode == null)
                     {
-                        // =========================================================
-                        // 3. Update Status Transaksi Parkir
-                        // =========================================================
+
+                        // 3. Update Parking Transaction Status
                         if (!Guid.TryParse(parkingTransactionId, out var transactionGuid))
                         {
                             _logger.LogError("Invalid parking transaction ID format: {ParkingTransactionId}", parkingTransactionId);
@@ -145,7 +134,7 @@ namespace LegalPark.Services.Payment
                 }
                 else if (deductResponse is OkResult || deductResponse is OkObjectResult)
                 {
-                    // fallback: dianggap sukses
+                    
                     return PaymentResult.SUCCESS;
                 }
                 else
@@ -157,7 +146,7 @@ namespace LegalPark.Services.Payment
             }
             catch (System.Exception ex)
             {
-                // Tangani pengecualian tak terduga
+                
                 _logger.LogError(ex, "An error occurred during payment processing for User ID: {UserId}", userId);
                 return PaymentResult.FAILED_OTHER;
             }

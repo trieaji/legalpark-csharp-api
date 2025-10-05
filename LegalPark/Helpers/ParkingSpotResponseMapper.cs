@@ -16,7 +16,7 @@ namespace LegalPark.Helpers
 
         public ParkingSpotResponse MapToParkingSpotResponse(ParkingSpot parkingSpot)
         {
-            // Periksa jika objek input null untuk menghindari NullReferenceException
+            
             if (parkingSpot == null)
             {
                 return null;
@@ -27,13 +27,13 @@ namespace LegalPark.Helpers
             response.Id = parkingSpot.Id.ToString();
             response.SpotNumber = parkingSpot.SpotNumber;
 
-            // Konversi enum ke string. Di C#, .ToString() setara dengan .name() di Java.
+            
             response.SpotType = parkingSpot.SpotType.ToString();
             response.Status = parkingSpot.Status.ToString();
 
-            response.Floor = parkingSpot.Floor ?? 0; // Menggunakan 0 jika floor null
+            response.Floor = parkingSpot.Floor ?? 0; 
 
-            // Peta objek Merchant menggunakan AutoMapper
+            
             if (parkingSpot.Merchant != null)
             {
                 response.Merchant = _mapper.Map<MerchantResponse>(parkingSpot.Merchant);

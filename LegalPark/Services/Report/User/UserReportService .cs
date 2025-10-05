@@ -33,9 +33,9 @@ namespace LegalPark.Services.Report.User
                 return ResponseHandler.GenerateResponseError(HttpStatusCode.NotFound, "FAILED", $"User not found with ID: {userId}");
             }
 
-            // Convert DateOnly ke DateTime (awal dan akhir hari)
-            var startDateTime = startDate.Date; // jam 00:00
-            var endDateTime = endDate.Date.AddDays(1).AddTicks(-1); // jam 23:59:59.9999999
+            // Convert DateOnly to DateTime (start and end of day)
+            var startDateTime = startDate.Date; // midnight (12:00 a.m.)
+            var endDateTime = endDate.Date.AddDays(1).AddTicks(-1); // 23:59:59.9999999
 
             var transactions = await _parkingTransactionRepository
                 .findByVehicleOwnerIdAndEntryTimeBetween(userId, startDateTime, endDateTime);

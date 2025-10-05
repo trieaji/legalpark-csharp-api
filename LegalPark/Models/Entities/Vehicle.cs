@@ -30,13 +30,12 @@ namespace LegalPark.Models.Entities
         [Column("updated_at")]
         public DateTime UpdatedAt { get; set; }
 
-        // --- Properti Navigasi Koleksi ---
-        // Satu Vehicle bisa memiliki banyak ParkingTransaction
+        
         public ICollection<ParkingTransaction> ParkingTransactions { get; set; }
 
         public Vehicle()
         {
-            // Inisialisasi koleksi
+           
             ParkingTransactions = new HashSet<ParkingTransaction>();
         }
 

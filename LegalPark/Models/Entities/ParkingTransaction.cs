@@ -43,10 +43,7 @@ namespace LegalPark.Models.Entities
         [Column("updated_at")]
         public DateTime UpdatedAt { get; set; }
 
-        // --- Properti Navigasi Koleksi ---
-        // Satu ParkingTransaction bisa memiliki satu PaymentVerificationCode
-        // Ini adalah sisi "satu" dari relasi One-to-One, jadi tidak ada ICollection di sini.
-        // Properti navigasi ke PaymentVerificationCode sudah ada di PaymentVerificationCode.cs
+        
 
         public ParkingTransaction() { }
 

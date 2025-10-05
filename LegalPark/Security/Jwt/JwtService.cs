@@ -1,10 +1,10 @@
-using LegalPark.Models.Entities; // Untuk model User
+using LegalPark.Models.Entities; 
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration; // Untuk membaca SECRET_KEY dari appsettings.json
-using Microsoft.IdentityModel.Tokens; // Pustaka utama untuk token
+using Microsoft.Extensions.Configuration; 
+using Microsoft.IdentityModel.Tokens; 
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt; // Menggantikan io.jsonwebtoken.Jwts
+using System.IdentityModel.Tokens.Jwt; 
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -99,14 +99,7 @@ namespace LegalPark.Security.Jwt
         public async Task<string> generateToken(User user, IList<Claim> claims = null)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            //var claims = new List<Claim>
-            //{
-            //    new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            //    new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            //    new Claim(ClaimTypes.Role, user.Role.ToString()),
-            //};
-
-            // Jika klaim tidak disediakan (null), ambil klaim dari UserManager
+            
             if (claims == null)
             {
                 var userRoles = await _userManager.GetRolesAsync(user);
@@ -117,7 +110,7 @@ namespace LegalPark.Security.Jwt
                 }
             }
 
-            // Pastikan klaim dasar (sub dan email) selalu ada
+            
             if (!claims.Any(c => c.Type == JwtRegisteredClaimNames.Sub))
             {
                 claims.Add(new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()));
@@ -128,12 +121,12 @@ namespace LegalPark.Security.Jwt
             }
             if (!claims.Any(c => c.Type == ClaimTypes.Name))
             {
-                claims.Add(new Claim(ClaimTypes.Name, user.Email)); // supaya bisa dipakai User.FindFirst(ClaimTypes.Name)
+                claims.Add(new Claim(ClaimTypes.Name, user.Email)); 
             }
 
             if (!claims.Any(c => c.Type == ClaimTypes.Email))
             {
-                claims.Add(new Claim(ClaimTypes.Email, user.Email)); // opsi lain, lebih natural
+                claims.Add(new Claim(ClaimTypes.Email, user.Email)); 
             }
 
 

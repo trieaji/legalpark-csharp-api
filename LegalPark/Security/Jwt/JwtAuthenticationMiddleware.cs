@@ -20,29 +20,28 @@ namespace LegalPark.Security.Jwt
 
         public async Task InvokeAsync(HttpContext context, IJwtService jwtService, IUserRepository userRepository)
         {
-            // Ambil token dari header Authorization
+            
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
 
             if (token != null)
             {
                 try
                 {
-                    // PERBAIKAN: Memanggil metode yang benar, yaitu extractPrincipalFromToken
+                    
                     var principal = jwtService.extractPrincipalFromToken(token);
                     if (principal != null)
                     {
-                        // Ambil userId dari claim token
+                        
                         var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
                         if (userIdClaim != null)
                         {
                             var userId = Guid.Parse(userIdClaim.Value);
-                            // Menggunakan metode GetByIdAsync dari IGenericRepository
-                            // yang merupakan implementasi yang benar.
+                            
                             var user = await userRepository.GetByIdAsync(userId);
 
                             if (user != null)
                             {
-                                // Jika pengguna ditemukan, set context.User
+                                
                                 context.User = principal;
                             }
                         }
@@ -50,14 +49,14 @@ namespace LegalPark.Security.Jwt
                 }
                 catch (SecurityTokenExpiredException)
                 {
-                    // Tangani token kedaluwarsa
+                    
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                     await context.Response.WriteAsync("Token has expired.");
                     return;
                 }
                 catch
                 {
-                    // Tangani token tidak valid lainnya
+                    
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                     await context.Response.WriteAsync("Invalid token.");
                     return;
